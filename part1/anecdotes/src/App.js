@@ -3,14 +3,14 @@ import { getRandomInt, initializePoints } from './util'
 
 const Anecdote = ({selected, votes, anecdotes}) => {
   return (
-    <div>
+    <>
       <div>
         {anecdotes[selected]}
       </div>
       <div>
         has {votes[selected]} votes
       </div>
-    </div>
+    </>
   )
 }
 
