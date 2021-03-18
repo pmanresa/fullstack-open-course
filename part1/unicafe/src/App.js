@@ -9,7 +9,7 @@ const Button = (props) => (
 const Statistics = (props) => {
   return (
     <div>
-      {props.text} {props.value}
+      {props.text} {props.value} {props.isPercentage !== undefined ? "%" : ""}
     </div>
   )
 }
@@ -19,6 +19,10 @@ const App = () => {
   const [good, setGood] = useState(0)
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
+
+  const total = good + neutral + bad
+  const average = total / 3
+  const positivePercentage = total > 0 ? good / total : 0
 
   return (
     <>
@@ -30,9 +34,12 @@ const App = () => {
       </div>
       <div>
         <h1>Statistics</h1>
-        <Statistics text="good" value={good} />
-        <Statistics text="neutral" value={neutral} />
-        <Statistics text="bad" value={bad} />
+        <Statistics text="Good" value={good} />
+        <Statistics text="Neutral" value={neutral} />
+        <Statistics text="Bad" value={bad} />
+        <Statistics text="All" value={total} />
+        <Statistics text="Average" value={average} />
+        <Statistics text="Positive" value={positivePercentage} isPercentage={true} />
       </div>
     </>
   );
