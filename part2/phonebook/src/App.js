@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from 'react'
+import './App.css'
 import Persons from './Persons'
 import PersonForm from './PersonForm'
 import Filter from './Filter'
 import personService from './services/personService'
+
+const Notification = ({ message, className }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className={className}>
+      {message}
+    </div>
+  )
+}
 
 const App = () => {
   const [ persons, setPersons ] = useState([]) 
@@ -10,13 +23,14 @@ const App = () => {
   const [ newNumber, setNewNumber ] = useState('')
   const [ nameFilter, setNameFilter ] = useState('')
   const [ requestData, setRequestData ] = useState(true)
-
+  const [ successMessage, setSuccessMessage ] = useState(null)
+  const [ errorMessage, setErrorMessage ] = useState(null)
+  
   useEffect(() => {
     personService
       .getAll()
       .then(initialPersons => {
         setPersons(initialPersons)
-        setRequestData(false)
       })
       .catch(error => {
         console.log("Error when loading person data: ", error);
@@ -28,7 +42,7 @@ const App = () => {
     event.preventDefault()
     const alreadyExists = persons.some(person => person.name === newName)
     
-    if (alreadyExists){
+    if (alreadyExists) {
       const confirmed = window.confirm(`${newName} is already added to phonebook, replace the old nunber with a new one?`);
       
       if (confirmed) {
@@ -38,9 +52,18 @@ const App = () => {
           .update(person.id, changedPerson)
           .then(updatedPerson => {
             setPersons(persons.map(p => p.id !== updatedPerson.id ? p : updatedPerson))
+            
+            setSuccessMessage(`${updatedPerson.name}'s number modified`)
+            setTimeout(() => {
+              setSuccessMessage(null)
+            }, 5000)
           })
           .catch(error => {
             console.log(`Error when updating Person ${person.id}: ${error}`);
+            setErrorMessage(`${person.name} has already been deleted from the server.`)
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
           })
       }
     
@@ -55,9 +78,19 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           setNewName('')
           setNewNumber('')
+          
+          setSuccessMessage(`${returnedPerson.name} added`)
+          setTimeout(() => {
+            setSuccessMessage(null)
+          }, 5000)
         })
         .catch(error => {
-          console.log(error);
+          console.log(error)
+          
+          setErrorMessage(`Couldn't add ${newPerson.name}. An error ocurred in the server`)
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
         })
     }
   }
@@ -81,6 +114,8 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
+      <Notification message={successMessage} className="success" />
+      <Notification message={errorMessage} className="error" />
       <Filter 
         value={nameFilter}
         handleNameFilterChange={handleNameFilterChange}
